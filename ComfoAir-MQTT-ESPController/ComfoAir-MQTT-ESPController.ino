@@ -1,4 +1,4 @@
-//KWL_C_v3.ino
+//ComfoAir-MQTT-ESPController.ino
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>

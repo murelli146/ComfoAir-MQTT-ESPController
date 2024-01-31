@@ -1,3 +1,5 @@
+![Sympolbild](./pics/Sympolbild.png)
+
 # ComfoAir-MQTT-ESPController
 
 ## Über das Projekt
