@@ -1,0 +1,4 @@
+# .gitignore
+
+# Ausschließen der config.h-Datei
+config.h
