@@ -1,6 +1,7 @@
-![Sympolbild](./pics/Sympolbild.png)
 
 # ComfoAir-MQTT-ESPController
+
+![Sympolbild](./pics/Sympolbild.png)
 
 ## Über das Projekt
 Dieses Projekt ermöglicht die Steuerung einer ComfoAir Lüftungsanlage über MQTT mit einem ESP8266 Mikrocontroller. Es ist ideal für Heimautomatisierungsenthusiasten, die ihre Lüftungsanlage in ein Smart-Home-System integrieren möchten.
@@ -159,3 +160,7 @@ Stellen Sie sicher, dass Sie Ihre WLAN- und MQTT-Zugangsdaten nicht öffentlich 
 
 ## Beitragen und Support
 Informationen dazu, wie man zum Projekt beitragen kann und wo man Unterstützung findet.
+
+## Entwicklungsboard
+
+![Entwicklungsboard](./pics/Entwicklungsboard.png)
