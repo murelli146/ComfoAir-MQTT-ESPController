@@ -12,6 +12,10 @@ Dieses Projekt ermöglicht die Steuerung einer ComfoAir Lüftungsanlage über MQ
 - **Kommunikation**: RJ45 Kabel
 - **Entwicklungsumgebung**: Arduino IDE
 
+![Hardware](./pics/Hardware.png)
+
+![Schaltplan](./pics/Schaltplan.png)
+
 ## Installation und Setup
 ### Voraussetzungen
 - Ein ESP8266 Mikrocontroller
