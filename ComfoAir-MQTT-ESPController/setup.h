@@ -25,4 +25,6 @@ void reconnect();
 void setupOTA();
 void setup_mqtt();
 
+void callback(char* topic, byte* message, unsigned int length); // von ComfoAir-MQTT-ESPController.ino 
+
 #endif

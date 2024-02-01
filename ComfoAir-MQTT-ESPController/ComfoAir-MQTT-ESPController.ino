@@ -93,7 +93,6 @@ void setup() {
   setup_mqtt();
 
   // Abonnieren der Topics
-  client.setCallback(callback);
   client.subscribe("ComfoAir/cmd/#");
 
   commandQueue.enqueue("00CD00");  // Globale Variablen setzen für Stufensetup
