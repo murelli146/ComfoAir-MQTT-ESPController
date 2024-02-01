@@ -289,7 +289,7 @@ void callback(char* topic, byte* message, unsigned int length) {
       Serial1.print("Stufensetup Befehl: ");
       Serial1.println(befehl);
 
-      //commandQueue.enqueue(befehl);
+      commandQueue.enqueue(befehl);
       commandQueue.enqueue("00CD00");
     }
   }
