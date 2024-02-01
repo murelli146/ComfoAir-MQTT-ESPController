@@ -4,7 +4,26 @@
 ![Sympolbild](./pics/Sympolbild.png)
 
 ## Über das Projekt
-Dieses Projekt ermöglicht die Steuerung einer ComfoAir Lüftungsanlage über MQTT mit einem ESP8266 Mikrocontroller. Es ist ideal für Heimautomatisierungsenthusiasten, die ihre Lüftungsanlage in ein Smart-Home-System integrieren möchten.
+Dieses Projekt bietet eine Lösung zur systemunabhängigen Verwendung zur Steuerung der Comfoair-Lüftungsanlage (Zehnder Comfoair CA350/550, Stork und baugleiche). Es verwendet das MQTT-Protokoll in Verbindung mit einem ESP-Mikrocontroller, um eine flexible Steuerung und Überwachung der Comfoair-Funktionen zu ermöglichen.
+
+### Hauptfunktionen
+
+- **Lüftersteuerung:** Ermöglicht das Einstellen der Lüfterstufen und der Komforttemperatur.
+- **Stoßlüftungslogik:** Integrierte Logik für die Stoßlüftung mit Nachlaufzeit, aktivierbar über ein MQTT-Objekt.
+- **Statusüberwachung:** Sendet Statusobjekte wie Temperaturen, Vorheizregister, Motoren, Ventilationsstufen, Bypass-Status, Betriebsstunden, Störungsinformationen und Geräteinformationen in einem einstellbaren Sendezyklus.
+- **Stufensetup:** die Konfiguration der einzelnen Lüftereinstellung ist über MQTT möglich.
+
+### Schnelleinrichtung
+
+1. **Arduino IDE:** Öffne `ComfoAir-MQTT-ESPController.ino` in der Arduino IDE.
+2. **Konfiguration:** Gib SSID, Passwort und die IP-Adresse des MQTT-Brokers an.
+3. **Flashen:** Lade den Code auf den ESP-Mikrocontroller.
+4. **Hardware-Anschluss:** Verbinde die Hardware gemäß dem bereitgestellten Schaltplan mit dem RJ45-Port der Comfoair.
+5. **Fertig:** Dein System ist einsatzbereit!
+
+Mit diesem Projekt kannst du deine Comfoair-Lüftungsanlage einfach und effizient steuern und überwachen.
+
+ACHTUNG! Grundsätzlich gilt: Nutzung auf eigenes Risiko!!!
 
 ## Technische Details
 - **Mikrocontroller**: ESP8266
@@ -60,7 +79,7 @@ Dieses Projekt ermöglicht die Steuerung einer ComfoAir Lüftungsanlage über MQ
 - Wenn Sie Probleme beim Hochladen haben, versuchen Sie, den Boot-Modus des ESP8266 zu ändern, indem Sie bestimmte Pins (z.B. GPIO0) auf GND ziehen, abhängig von Ihrem spezifischen Board.
 
 ## Code-Übersicht
-Der Code (`KWL_C_v3.ino`) beinhaltet die Logik für die MQTT-Kommunikation und die Steuerung der ComfoAir-Anlage. Hauptfunktionen umfassen:
+Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-Kommunikation und die Steuerung der ComfoAir-Anlage. Hauptfunktionen umfassen:
 - OTA-Firmware-Updates
 - WLAN-Verbindung
 - MQTT-Client-Konfiguration
@@ -149,17 +168,17 @@ Der Code (`KWL_C_v3.ino`) beinhaltet die Logik für die MQTT-Kommunikation und d
 - `ComfoAir/status/sendezyklus`: Dauer des aktuellen Sendezyklus in Sekunden.
 
 ## Verwendung
-Erläutern Sie, wie das System über MQTT-Befehle gesteuert wird.
+ToDo
 
 ## Dokumentation und Ressourcen
 - [Protokollbeschreibung ComfoAir](http://www.see-solutions.de/sonstiges/Protokollbeschreibung_ComfoAir.pdf)
 - [Bedienungsanleitung ComfoAir](https://www.oeko-therm-systems.at/media/docs/bedienungsanleitungen/zehnder-bedienungsanleitung-ca350.pdf)
 
 ## Sicherheitshinweise
-Stellen Sie sicher, dass Sie Ihre WLAN- und MQTT-Zugangsdaten nicht öffentlich machen.
+ACHTUNG! Grundsätzlich gilt: Nutzung auf eigenes Risiko!!!
 
 ## Beitragen und Support
-Informationen dazu, wie man zum Projekt beitragen kann und wo man Unterstützung findet.
+ToDo
 
 ## Entwicklungsboard
 
