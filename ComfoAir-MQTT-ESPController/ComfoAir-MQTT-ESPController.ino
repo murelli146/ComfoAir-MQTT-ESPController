@@ -88,7 +88,7 @@ CommandQueue commandQueue;
 void setup() {
   setupOTA();
   Serial.begin(9600);
-  Serial1.begin(9600);
+  DEBUG_INIT(115200);
   setup_wifi();
   setup_mqtt();
 
@@ -159,9 +159,9 @@ void loop() {
       if (currentRequestIndex == 0) {
         unsigned long processingTime = millis() - requestProcessingStartTime;
         client.publish("ComfoAir/status/sendezyklus", String(processingTime / 1000).c_str());
-        Serial1.print("Gesamte Abarbeitungszeit für requests[]: ");
-        Serial1.print(processingTime);
-        Serial1.println(" ms");
+        DEBUG_PRINT("Gesamte Abarbeitungszeit für requests[]: ");
+        DEBUG_PRINT(processingTime);
+        DEBUG_PRINTLN(" ms");
       }
     }
   }
@@ -184,8 +184,8 @@ void callback(char* topic, byte* message, unsigned int length) {
   String daten;
   daten.reserve(100);  // Reserviere Speicher für die maximale Länge des Strings
 
-  Serial1.print("Topic: ");
-  Serial1.println(topicStr);
+  DEBUG_PRINT("Topic: ");
+  DEBUG_PRINTLN(topicStr);
 
   // Verarbeite das Thema und die Nachricht
   if (topicStr == "ComfoAir/cmd/stufe") {
@@ -285,8 +285,8 @@ void callback(char* topic, byte* message, unsigned int length) {
     if (stufeGeaendert) {
       char befehl[24];
       sprintf(befehl, "00CF09%02X%02X%02X%02X%02X%02X%02X%02X00", ABL_0, ABL_1, ABL_2, ZUL_0, ZUL_1, ZUL_2, ABL_3, ZUL_3);
-      Serial1.print("Stufensetup Befehl: ");
-      Serial1.println(befehl);
+      DEBUG_PRINT("Stufensetup Befehl: ");
+      DEBUG_PRINTLN(befehl);
 
       commandQueue.enqueue(befehl);
       commandQueue.enqueue("00CD00");
@@ -297,8 +297,8 @@ void callback(char* topic, byte* message, unsigned int length) {
     int value = messageStr.toInt();
     if (value >= 60 && value <= 600) {
       COMMAND_INTERVAL = value * 1000 / (numRequests - 1);
-      Serial1.print("Neues COMMAND_INTERVAL: ");
-      Serial1.println(numRequests - 1);
+      DEBUG_PRINT("Neues COMMAND_INTERVAL: ");
+      DEBUG_PRINTLN(numRequests - 1);
     }
   }
 

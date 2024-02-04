@@ -6,24 +6,24 @@ void setup_wifi() {
 
   delay(10);
   // We start by connecting to a WiFi network
-  Serial1.println();
-  Serial1.print("Connecting to ");
-  Serial1.println(ssid);
+  DEBUG_PRINTLN();
+  DEBUG_PRINT("Connecting to ");
+  DEBUG_PRINTLN(ssid);
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial1.print(".");
+    DEBUG_PRINT(".");
   }
 
   randomSeed(micros());
 
-  Serial1.println("");
-  Serial1.println("WiFi connected");
-  Serial1.println("IP address: ");
-  Serial1.println(WiFi.localIP());
+  DEBUG_PRINTLN("");
+  DEBUG_PRINTLN("WiFi connected");
+  DEBUG_PRINTLN("IP address: ");
+  DEBUG_PRINTLN(WiFi.localIP());
 }
 
 void setupOTA() {
@@ -38,26 +38,26 @@ void setupOTA() {
     }
     // Hinweis: Wenn das Dateisystem aktualisiert wird, sollten alle
     // Dateisystemoperationen hier beendet werden.
-    Serial1.println("Starte OTA-Update " + type);
+    DEBUG_PRINTLN("Starte OTA-Update " + type);
   });
   ArduinoOTA.onEnd([]() {
-    Serial1.println("\nEnde");
+    DEBUG_PRINTLN("\nEnde");
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial1.printf("Fortschritt: %u%%\r", (progress / (total / 100)));
+    DEBUG_PRINTF("Fortschritt: %u%%\r", (progress / (total / 100)));
   });
   ArduinoOTA.onError([](ota_error_t error) {
-    Serial1.printf("Fehler[%u]: ", error);
+    DEBUG_PRINTF("Fehler[%u]: ", error);
     if (error == OTA_AUTH_ERROR) {
-      Serial1.println("Authentifizierungsfehler");
+      DEBUG_PRINTLN("Authentifizierungsfehler");
     } else if (error == OTA_BEGIN_ERROR) {
-      Serial1.println("Beginn-Fehler");
+      DEBUG_PRINTLN("Beginn-Fehler");
     } else if (error == OTA_CONNECT_ERROR) {
-      Serial1.println("Verbindungsfehler");
+      DEBUG_PRINTLN("Verbindungsfehler");
     } else if (error == OTA_RECEIVE_ERROR) {
-      Serial1.println("Empfangsfehler");
+      DEBUG_PRINTLN("Empfangsfehler");
     } else if (error == OTA_END_ERROR) {
-      Serial1.println("Ende-Fehler");
+      DEBUG_PRINTLN("Ende-Fehler");
     }
   });
   ArduinoOTA.begin();
@@ -69,11 +69,11 @@ void setup_mqtt() {
 
   // Verbinden mit MQTT Broker
   while (!client.connected()) {
-    Serial1.println("Verbindung mit MQTT Broker...");
-    if (client.connect("ESP8266Client", mqttUser, mqttPassword)) {
-      Serial1.println("MQTT Broker Verbunden");
+    DEBUG_PRINTLN("Verbindung mit MQTT Broker...");
+    if (client.connect("ESP8266_ComfoAir", mqttUser, mqttPassword)) {
+      DEBUG_PRINTLN("MQTT Broker Verbunden");
     } else {
-      Serial1.println("Fehler, rc=" + String(client.state()) + " Versuche es in 5 Sekunden erneut");
+      DEBUG_PRINTLN("Fehler, rc=" + String(client.state()) + " Versuche es in 5 Sekunden erneut");
       delay(5000);
     }
   }
@@ -82,16 +82,16 @@ void setup_mqtt() {
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
-    Serial1.println("Attempting MQTT connection...");
+    DEBUG_PRINTLN("Attempting MQTT connection...");
     if (client.connect("ESP8266Client", mqttUser, mqttPassword)) {
-      Serial1.println("connected");
+      DEBUG_PRINTLN("connected");
       // Hier können Sie Ihre MQTT-Abonnements hinzufügen
       client.subscribe("ComfoAir/cmd/#");
       break;  // Verbindung erfolgreich, Schleife verlassen
     } else {
-      Serial1.print("failed, rc=");
-      Serial1.print(client.state());
-      Serial1.println(" try again in 5 seconds");
+      DEBUG_PRINT("failed, rc=");
+      DEBUG_PRINT(client.state());
+      DEBUG_PRINTLN(" try again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(5000);
     }

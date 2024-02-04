@@ -17,8 +17,8 @@ void sendCommand(HardwareSerial& serial, const char* command) {
   sprintf(buffer, "07F0%s%02X070F", command, calculateChecksum(command));
   const char* hexData = buffer;
 
-  Serial1.print("Befehl gesendet: ");
-  Serial1.println(buffer);
+  DEBUG_PRINT("Befehl gesendet: ");
+  DEBUG_PRINTLN(buffer);
 
   packHStar(hexData, byteArray, byteArraySize);
   for (int i = 0; i < byteArraySize; i++) {
@@ -45,11 +45,9 @@ void checkForResponse(HardwareSerial& serial) {
   switch (currentState) {
     case WAITING_FOR_ACK:
       if (strncmp(responseBuffer, "07F3", 4) == 0) {
-        //Serial1.print("Empfangene Daten (ACK Check): ");
-        //Serial1.println(responseBuffer);
         currentState = CHECKING_DATA;
       } else if (index >= 4) {
-        Serial1.println("Kein ACK empfangen");
+        DEBUG_PRINTLN("Kein ACK empfangen");
         currentState = IDLE;
         index = 0;  // Index zurücksetzen
       }
@@ -62,7 +60,7 @@ void checkForResponse(HardwareSerial& serial) {
           currentState = RECEIVING_DATA;
         } else {
           // Nur ACK empfangen, keine weiteren Daten
-          Serial1.println("Nur ACK empfangen, keine weiteren Daten");
+          DEBUG_PRINTLN("Nur ACK empfangen, keine weiteren Daten");
           currentState = IDLE;
           index = 0;  // Index zurücksetzen
           // ACK senden
@@ -72,8 +70,8 @@ void checkForResponse(HardwareSerial& serial) {
       break;
 
     case RECEIVING_DATA:
-      Serial1.print("Empfangene Daten: ");
-      Serial1.println(responseBuffer);
+      DEBUG_PRINT("Empfangene Daten: ");
+      DEBUG_PRINTLN(responseBuffer);
       processResponse(serial, responseBuffer);
       currentState = IDLE;
       index = 0;  // Index zurücksetzen
@@ -91,8 +89,6 @@ void processResponse(HardwareSerial& serial, char* responseBuffer) {
   // Entfernen von Startbytes und ACK "07F307F0"
   if (strncmp(responseBuffer, "07F307F0", 8) == 0) {
     memmove(responseBuffer, responseBuffer + 8, strlen(responseBuffer) - 7);
-    //Serial1.print("Nach Entfernen ACK + Startbytes: ");
-    //Serial1.println(responseBuffer);
   }
 
   // Entfernen von Endbytes "070F"
@@ -111,11 +107,9 @@ void processResponse(HardwareSerial& serial, char* responseBuffer) {
       char* endPtr = strstr(responseBuffer + expectedLength - 6, "070F");
       if (endPtr != nullptr) {
         *endPtr = '\0';  // Setze das Ende des Strings vor den Endbytes
-        //Serial1.print("Nach Entfernen von Endbytes: ");
-        //Serial1.println(responseBuffer);
       }
     }
-    // Senden Sie das ACK zurück
+    // ACK an ComfoAir
     sendAck(serial);
   }
 
@@ -124,8 +118,8 @@ void processResponse(HardwareSerial& serial, char* responseBuffer) {
   while (double07Ptr != nullptr) {
     memmove(double07Ptr, double07Ptr + 2, strlen(double07Ptr) - 1);
     double07Ptr = strstr(responseBuffer, "0707");
-    Serial1.print("Nach Entfernen von doppelte 07: ");
-    Serial1.println(responseBuffer);
+    DEBUG_PRINT("Nach Entfernen von doppelte 07: ");
+    DEBUG_PRINTLN(responseBuffer);
   }
 
   // Checksumme überprüfen und entfernen
@@ -139,13 +133,10 @@ void processResponse(HardwareSerial& serial, char* responseBuffer) {
     sprintf(calculatedChecksumStr, "%02X", calculatedChecksum);
 
     if (strcmp(calculatedChecksumStr, checksum) != 0) {
-      Serial1.println("Checksummenfehler");
+      DEBUG_PRINTLN("Checksummenfehler");
       return;
     }
   }
-
-  //Serial1.print("Daten zur Weiterverarbeitung: ");
-  //Serial1.println(responseBuffer);
 
   publishValues(responseBuffer);
 }
