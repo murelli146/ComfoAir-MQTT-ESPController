@@ -1,7 +1,7 @@
 
 # ComfoAir-MQTT-ESPController
 
-![Sympolbild](./pics/Sympolbild.png)
+![Hardware](./pics/Hardware.png)
 
 ## Über das Projekt
 Dieses Projekt bietet eine Lösung zur systemunabhängigen Verwendung zur Steuerung der Comfoair-Lüftungsanlage (Zehnder Comfoair CA350/550, Stork und baugleiche). Es verwendet das MQTT-Protokoll in Verbindung mit einem ESP-Mikrocontroller, um eine flexible Steuerung und Überwachung der Comfoair-Funktionen zu ermöglichen.
@@ -31,8 +31,6 @@ ACHTUNG! Grundsätzlich gilt: Nutzung auf eigenes Risiko!!!
 - **Spannungswandler**: 12V auf 3,3V
 - **Kommunikation**: RJ45 Kabel
 - **Entwicklungsumgebung**: Arduino IDE
-
-![Hardware](./pics/Hardware.png)
 
 ![Schaltplan](./pics/Schaltplan.png)
 
