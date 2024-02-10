@@ -70,8 +70,9 @@ void setup_mqtt() {
   // Verbinden mit MQTT Broker
   while (!client.connected()) {
     DEBUG_PRINTLN("Verbindung mit MQTT Broker...");
-    if (client.connect("ESP8266_ComfoAir", mqttUser, mqttPassword)) {
+    if (client.connect("ESP8266_ComfoAir", mqttUser, mqttPassword, "ComfoAir/LWT", 0, true, "offline")) {
       DEBUG_PRINTLN("MQTT Broker Verbunden");
+      client.publish("ComfoAir/LWT", "online", true);
     } else {
       DEBUG_PRINTLN("Fehler, rc=" + String(client.state()) + " Versuche es in 5 Sekunden erneut");
       delay(5000);
@@ -83,8 +84,9 @@ void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
     DEBUG_PRINTLN("Attempting MQTT connection...");
-    if (client.connect("ESP8266Client", mqttUser, mqttPassword)) {
-      DEBUG_PRINTLN("connected");
+    if (client.connect("ESP8266_ComfoAir", mqttUser, mqttPassword, "ComfoAir/LWT", 0, true, "offline")) {
+      DEBUG_PRINTLN("MQTT Broker Verbunden");
+      client.publish("ComfoAir/LWT", "online", true);
       // Hier können Sie Ihre MQTT-Abonnements hinzufügen
       client.subscribe("ComfoAir/cmd/#");
       break;  // Verbindung erfolgreich, Schleife verlassen
