@@ -143,7 +143,8 @@ void processResponse(HardwareSerial& serial, char* responseBuffer) {
 
 // Schritt 4: MQTT publish
 void publishValues(const char* responseBuffer) {
-  //    String topic = maintopic + "status/";
+  StaticJsonDocument<512> doc;  // Umstellung auf JSON (doc)
+  char buffer[512];             // Umstellung auf  JSON  (doc)
   // Erstelle einen String für das Thema und reserviere Speicher
   String reciv = responseBuffer;
   reciv.reserve(65);  // Angenommene maximale Länge des Empfangs
@@ -158,12 +159,25 @@ void publishValues(const char* responseBuffer) {
     float b5 = (hexToDec(reciv.substring(14, 16)) / 2.0) - 20;
     float b7 = (hexToDec(reciv.substring(18, 20)) / 2.0) - 20;
 
+    /* Umstellung auf JSON (doc)
     client.publish("ComfoAir/status/temperatur/Soll", String(b1).c_str());
     client.publish("ComfoAir/status/temperatur/Aussenluft", String(b2).c_str());
     client.publish("ComfoAir/status/temperatur/Zuluft", String(b3).c_str());
     client.publish("ComfoAir/status/temperatur/Abluft", String(b4).c_str());
     client.publish("ComfoAir/status/temperatur/Fortluft", String(b5).c_str());
     client.publish("ComfoAir/status/temperatur/Erdwärme", String(b7).c_str());
+	  */
+
+    doc["Soll"] = b1;
+    doc["Aussenluft"] = b2;
+    doc["Zuluft"] = b3;
+    doc["Abluft"] = b4;
+    doc["Fortluft"] = b5;
+    doc["Erdwärme"] = b7;
+
+    size_t len = serializeJson(doc, buffer, sizeof(buffer));
+    client.publish("ComfoAir/status/temperatur", buffer, len);
+    doc.clear();  // JSON-Dokument für den nächsten Abschnitt leeren
   }
 
   // Vorheizregister Status
@@ -174,11 +188,23 @@ void publishValues(const char* responseBuffer) {
     int b4_5 = hexToDec(reciv.substring(12, 16));
     int b6 = hexToDec(reciv.substring(16, 18));
 
+    /* Umstellung auf JSON (doc)
     client.publish("ComfoAir/status/vorheizregister/Frostklappe", String(b1).c_str());
     client.publish("ComfoAir/status/vorheizregister/Frostschutz", String(b2).c_str());
     client.publish("ComfoAir/status/vorheizregister/Vorheizung", String(b3).c_str());
     client.publish("ComfoAir/status/vorheizregister/FrostMinuten", String(b4_5).c_str());
     client.publish("ComfoAir/status/vorheizregister/Frostsicherheit", String(b6).c_str());
+    */
+
+    doc["Frostklappe"] = b1;
+    doc["Frostschutz"] = b2;
+    doc["Vorheizung"] = b3;
+    doc["FrostMinuten"] = b4_5;
+    doc["Frostsicherheit"] = b6;
+
+    size_t len = serializeJson(doc, buffer, sizeof(buffer));
+    client.publish("ComfoAir/status/vorhzgregister", buffer, len);
+    doc.clear();  // JSON-Dokument für den nächsten Abschnitt leeren
   }
 
   // Motoren
@@ -188,10 +214,21 @@ void publishValues(const char* responseBuffer) {
     int b3_4 = 1875000 / hexToDec(reciv.substring(10, 14));
     int b5_6 = 1875000 / hexToDec(reciv.substring(14, 18));
 
+    /* Umstellung auf JSON (doc)
     client.publish("ComfoAir/status/motor/Zuluft", String(b1).c_str());
     client.publish("ComfoAir/status/motor/Abluft", String(b2).c_str());
     client.publish("ComfoAir/status/motor/Zuluft_RPM", String(b3_4).c_str());
     client.publish("ComfoAir/status/motor/Abluft_RPM", String(b5_6).c_str());
+    */
+
+    doc["Zuluft"] = b1;
+    doc["Abluft"] = b2;
+    doc["Zuluft_RPM"] = b3_4;
+    doc["Abluft_RPM"] = b5_6;
+
+    size_t len = serializeJson(doc, buffer, sizeof(buffer));
+    client.publish("ComfoAir/status/motor", buffer, len);
+    doc.clear();  // JSON-Dokument für den nächsten Abschnitt leeren
   }
 
   //Ventilationsstufen
@@ -211,6 +248,7 @@ void publishValues(const char* responseBuffer) {
     int b13 = hexToDec(reciv.substring(30, 32));
     int b14 = hexToDec(reciv.substring(32, 34));
 
+    /* Umstellung auf JSON (doc)
     client.publish("ComfoAir/status/stufe/ABL_0", String(ABL_0).c_str());
     client.publish("ComfoAir/status/stufe/ABL_1", String(ABL_1).c_str());
     client.publish("ComfoAir/status/stufe/ABL_2", String(ABL_2).c_str());
@@ -225,6 +263,26 @@ void publishValues(const char* responseBuffer) {
     client.publish("ComfoAir/status/stufe/ZUL_3", String(ZUL_3).c_str());
     client.publish("ComfoAir/status/stufe/Byte_13", String(b13).c_str());
     client.publish("ComfoAir/status/stufe/Byte_14", String(b14).c_str());
+    */
+
+    doc["ABL_0"] = ABL_0;
+    doc["ABL_1"] = ABL_1;
+    doc["ABL_2"] = ABL_2;
+    doc["ZUL_0"] = ZUL_0;
+    doc["ZUL_1"] = ZUL_1;
+    doc["ZUL_2"] = ZUL_2;
+    doc["ABL_IST"] = b7;
+    doc["ZUL_IST"] = b8;
+    doc["STUFE"] = STUFE - 1;  //Mapping der Stufe (eins versetzt)
+    doc["vent_abl"] = b10;
+    doc["ABL_3"] = ABL_3;
+    doc["ZUL_3"] = ZUL_3;
+    doc["Byte_13"] = b13;
+    doc["Byte_14"] = b14;
+
+    size_t len = serializeJson(doc, buffer, sizeof(buffer));
+    client.publish("ComfoAir/status/stufe", buffer, len);
+    doc.clear();  // JSON-Dokument für den nächsten Abschnitt leeren
   }
 
   //Bypass
@@ -245,6 +303,7 @@ void publishValues(const char* responseBuffer) {
     int b16_17 = hexToDec(reciv.substring(36, 40));
     int b18_20 = hexToDec(reciv.substring(40, 46));
 
+    /* Umstellung auf JSON (doc)
     client.publish("ComfoAir/status/betriebs_h/Stufe_0", String(b1_3).c_str());
     client.publish("ComfoAir/status/betriebs_h/Stufe_1", String(b4_6).c_str());
     client.publish("ComfoAir/status/betriebs_h/Stufe_2", String(b7_9).c_str());
@@ -253,6 +312,20 @@ void publishValues(const char* responseBuffer) {
     client.publish("ComfoAir/status/betriebs_h/Bypass", String(b14_15).c_str());
     client.publish("ComfoAir/status/betriebs_h/Filter", String(b16_17).c_str());
     client.publish("ComfoAir/status/betriebs_h/Stufe_3", String(b18_20).c_str());
+	*/
+
+    doc["Stufe_0"] = b1_3;
+    doc["Stufe_1"] = b4_6;
+    doc["Stufe_2"] = b7_9;
+    doc["Frost"] = b10_11;
+    doc["Vorheizung"] = b12_13;
+    doc["Bypass"] = b14_15;
+    doc["Filter"] = b16_17;
+    doc["Stufe_3"] = b18_20;
+
+    size_t len = serializeJson(doc, buffer, sizeof(buffer));
+    client.publish("ComfoAir/status/betriebs_h", buffer, len);
+    doc.clear();  // JSON-Dokument für den nächsten Abschnitt leeren
   }
 
   //Störungen
@@ -278,9 +351,19 @@ void publishValues(const char* responseBuffer) {
     String statText = aktFC == "" ? "Aktuell kein Fehler" : "Fehler: " + aktFC;
     statText += filterFlag == 0 ? " - Filter nicht voll" : " - Filter voll";
 
+    /* Umstellung auf JSON (doc)
     client.publish("ComfoAir/status/error/FehlerCode", String(aktFC).c_str());
     client.publish("ComfoAir/status/error/Filter", String(filterFlag).c_str());
     client.publish("ComfoAir/status/error/Text", String(statText).c_str());
+	*/
+
+    doc["FehlerCode"] = aktFC;
+    doc["Filter"] = filterFlag;
+    doc["Text"] = statText;
+
+    size_t len = serializeJson(doc, buffer, sizeof(buffer));
+    client.publish("ComfoAir/status/error", buffer, len);
+    doc.clear();  // JSON-Dokument für den nächsten Abschnitt leeren
   }
   //Firmware
   if (reciv.startsWith("006A0D")) {

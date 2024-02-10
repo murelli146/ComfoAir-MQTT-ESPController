@@ -4,6 +4,7 @@
 #define COMFOAIR_H
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <string>
 
 #include "setup.h"
