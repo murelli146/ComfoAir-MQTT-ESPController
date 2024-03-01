@@ -106,57 +106,83 @@ Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-
 ### MQTT Publish Topics
 
 #### Temperatur-Status
-- `ComfoAir/status/temperatur/Soll`: Aktuelle Solltemperatur.
-- `ComfoAir/status/temperatur/Aussenluft`: Temperatur der Außenluft.
-- `ComfoAir/status/temperatur/Zuluft`: Temperatur der Zuluft.
-- `ComfoAir/status/temperatur/Abluft`: Temperatur der Abluft.
-- `ComfoAir/status/temperatur/Fortluft`: Temperatur der Fortluft.
-- `ComfoAir/status/temperatur/Erdwärme`: Temperatur der Erdwärme.
+- `ComfoAir/status/temperatur
+```json
+{
+    "Abluft": 19.5,
+    "Aussenluft": 9.5,
+    "Erdwärme": 0,
+    "Fortluft": 11.5,
+    "Soll": 24.5,
+    "Zuluft": 19
+}
 
 #### Vorheizregister-Status
-- `ComfoAir/status/vorheizregister/Frostklappe`: Status der Frostklappe.
-- `ComfoAir/status/vorheizregister/Frostschutz`: Status des Frostschutzes.
-- `ComfoAir/status/vorheizregister/Vorheizung`: Status der Vorheizung.
-- `ComfoAir/status/vorheizregister/FrostMinuten`: Betriebsminuten im Frostschutzmodus.
-- `ComfoAir/status/vorheizregister/Frostsicherheit`: Status der Frostsicherheit.
+- `ComfoAir/status/vorhzgregister`
+```json
+{
+    "Frostklappe": 0,
+    "FrostMinuten": 0,
+    "Frostschutz": 0,
+    "Frostsicherheit": 3,
+    "Vorheizung": 0
+}
 
 #### Motoren-Status
-- `ComfoAir/status/motor/Zuluft`: Status des Zuluftmotors.
-- `ComfoAir/status/motor/Abluft`: Status des Abluftmotors.
-- `ComfoAir/status/motor/Zuluft_RPM`: Drehzahl des Zuluftmotors.
-- `ComfoAir/status/motor/Abluft_RPM`: Drehzahl des Abluftmotors.
+- `ComfoAir/status/motor`
+```json
+{
+    "Abluft": 35,
+    "Abluft_RPM": 1164,
+    "Zuluft": 30,
+    "Zuluft_RPM": 1015
+}
 
 #### Ventilationsstufen-Status
-- `ComfoAir/status/stufe/ABL_0`: Einstellungen für jede Ventilationsstufe.
-- `ComfoAir/status/stufe/ABL_1`
-- `ComfoAir/status/stufe/ABL_2`
-- `ComfoAir/status/stufe/ZUL_0`
-- `ComfoAir/status/stufe/ZUL_1`
-- `ComfoAir/status/stufe/ZUL_2`
-- `ComfoAir/status/stufe/ABL_3`
-- `ComfoAir/status/stufe/ZUL_3`
-- `ComfoAir/status/stufe/ABL_IST`: Aktuelle Ist-Werte der Ventilationsstufen.
-- `ComfoAir/status/stufe/ZUL_IST`
-- `ComfoAir/status/stufe/STUFE`: Aktuelle Lüftungsstufe.
-- `ComfoAir/status/stufe/vent_abl`: Status des Abluftventilators.
+- `ComfoAir/status/stufe`
+```json
+{
+    "ABL_0": 20,
+    "ABL_1": 35,
+    "ABL_2": 50,
+    "ABL_3": 70,
+    "ABL_IST": 35,
+    "STUFE": 1,
+    "vent_abl": 1,
+    "ZUL_0": 15,
+    "ZUL_1": 30,
+    "ZUL_2": 45,
+    "ZUL_3": 65,
+    "ZUL_IST": 30
+    "Byte_13": 0,
+    "Byte_14": 0,
+}
 
 #### Bypass-Status
 - `ComfoAir/status/Bypass`: Status des Bypass-Ventils.
 
 #### Betriebsstunden-Status
-- `ComfoAir/status/betriebs_h/Stufe_0`: Betriebsstunden für verschiedene Modi und Stufen.
-- `ComfoAir/status/betriebs_h/Stufe_1`
-- `ComfoAir/status/betriebs_h/Stufe_2`
-- `ComfoAir/status/betriebs_h/Frost`
-- `ComfoAir/status/betriebs_h/Vorheizung`
-- `ComfoAir/status/betriebs_h/Bypass`
-- `ComfoAir/status/betriebs_h/Filter`
-- `ComfoAir/status/betriebs_h/Stufe_3`
+- `ComfoAir/status/betriebs_h`
+```json
+{
+    "Bypass": 14749,
+    "Filter": 3330,
+    "Frost": 0,
+    "Stufe_0": 4791,
+    "Stufe_1": 64168,
+    "Stufe_2": 2128,
+    "Stufe_3": 12196,
+    "Vorheizung": 0
+}
 
 #### Störungs-Status
-- `ComfoAir/status/error/FehlerCode`: Aktueller Fehlercode.
-- `ComfoAir/status/error/Filter`: Status des Filters.
-- `ComfoAir/status/error/Text`: Beschreibung des aktuellen Fehlers.
+- `ComfoAir/status/error`
+```json
+{
+    "FehlerCode": "",
+    "Filter": 0,
+    "Text": "Aktuell kein Fehler - Filter nicht voll"
+}
 
 #### Firmware-Informationen
 - `ComfoAir/status/Firmware_Version`: Firmware-Version des Geräts.
