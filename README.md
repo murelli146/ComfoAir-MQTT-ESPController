@@ -116,6 +116,7 @@ Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-
     "Soll": 24.5,
     "Zuluft": 19
 }
+```
 
 #### Vorheizregister-Status
 - `ComfoAir/status/vorhzgregister`
@@ -127,6 +128,7 @@ Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-
     "Frostsicherheit": 3,
     "Vorheizung": 0
 }
+```
 
 #### Motoren-Status
 - `ComfoAir/status/motor`
@@ -137,6 +139,7 @@ Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-
     "Zuluft": 30,
     "Zuluft_RPM": 1015
 }
+```
 
 #### Ventilationsstufen-Status
 - `ComfoAir/status/stufe`
@@ -157,6 +160,7 @@ Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-
     "Byte_13": 0,
     "Byte_14": 0,
 }
+```
 
 #### Bypass-Status
 - `ComfoAir/status/Bypass`: Status des Bypass-Ventils.
@@ -174,6 +178,7 @@ Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-
     "Stufe_3": 12196,
     "Vorheizung": 0
 }
+```
 
 #### Störungs-Status
 - `ComfoAir/status/error`
@@ -183,6 +188,7 @@ Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-
     "Filter": 0,
     "Text": "Aktuell kein Fehler - Filter nicht voll"
 }
+```
 
 #### Firmware-Informationen
 - `ComfoAir/status/Firmware_Version`: Firmware-Version des Geräts.
