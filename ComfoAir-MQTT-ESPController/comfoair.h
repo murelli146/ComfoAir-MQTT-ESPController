@@ -25,6 +25,9 @@ extern bool isReadingResponse;      // Verzögerung nach commandSend
 extern State currentState;
 extern int ABL_0, ABL_1, ABL_2, ZUL_0, ZUL_1, ZUL_2, ABL_3, ZUL_3, STUFE;
 
+// Speicherzuweisung Debug Nachrichten
+extern char debugMsg[128];
+
 /*
 Info: Wegen Speicherproblemen wurden die Funktionen auf C_Strings umgebaut.
       Die Funktion publishValues mit Hilfsfunktionen verwendet strings mit reserviertem Speicher.      

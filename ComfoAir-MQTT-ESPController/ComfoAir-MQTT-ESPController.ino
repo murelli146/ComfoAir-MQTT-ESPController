@@ -49,6 +49,10 @@ const int numRequests = sizeof(requests) / sizeof(requests[0]);
 // Maximale Größe der Queue
 #define MAX_QUEUE_SIZE 10
 
+// Speicherzuweisung Debug Nachrichten
+char debugMsg[128];
+bool debugEnabled = 1; // Standardmäßig Debugging aktiviert
+
 // Queue-Struktur
 struct CommandQueue {
   String commands[MAX_QUEUE_SIZE];
@@ -88,7 +92,7 @@ CommandQueue commandQueue;
 void setup() {
   setupOTA();
   Serial.begin(9600);
-  DEBUG_INIT(115200);
+//  DEBUG_INIT(115200);
   setup_wifi();
   setup_mqtt();
 
@@ -105,7 +109,7 @@ int nachlaufzeit = 1200;  // in Sekunden
 unsigned long stosslueftungStartzeit = 0;
 
 void loop() {
-
+  checkWiFi();  //25.5.24
   ArduinoOTA.handle();
   // MQTT
   if (!client.connected()) {
@@ -119,6 +123,9 @@ void loop() {
     stosslueftungAktiv = false;
     commandQueue.enqueue("0099010" + String(aktuelleStufe));  // Zurück zur ursprünglichen Stufe
     commandQueue.enqueue("00CD00");
+    snprintf(debugMsg, sizeof(debugMsg), "Stoßlüftug Nachlaufzeit abgelaufen, setze vorherige Stufe: %s", aktuelleStufe);
+    DEBUG_PRINT(debugMsg);
+
   }
 
 
@@ -127,11 +134,13 @@ void loop() {
   // Überprüfen, ob seit dem letzten gesendeten Befehl 200 ms vergangen sind
   if (currentState == SENDING_COMMAND && millis() - lastSendTime > 200) {
     currentState = WAITING_FOR_ACK;
+    DEBUG_PRINT("CA_Loop State: WAITING_FOR_ACK");
   }
 
   // Überprüfen, ob eine Antwort von der ComfoAir vorliegt
   if (currentState == WAITING_FOR_ACK || currentState == RECEIVING_DATA || currentState == CHECKING_DATA) {
     checkForResponse(Serial);
+//    DEBUG_PRINT("CA_Loop State: Prüfe ob Antwort vorliegt");
   }
 
   // Befehle senden, wenn im IDLE-Zustand
@@ -159,11 +168,9 @@ void loop() {
       if (currentRequestIndex == 0) {
         unsigned long processingTime = millis() - requestProcessingStartTime;
         client.publish("ComfoAir/status/sendezyklus", String(processingTime / 1000).c_str());
-        DEBUG_PRINT("Gesamte Abarbeitungszeit für requests[]: ");
-        DEBUG_PRINT(processingTime);
-        DEBUG_PRINTLN(" ms");
       }
     }
+//    DEBUG_PRINT("CA_Loop State: IDLE");  
   }
 }
 
@@ -184,8 +191,10 @@ void callback(char* topic, byte* message, unsigned int length) {
   String daten;
   daten.reserve(100);  // Reserviere Speicher für die maximale Länge des Strings
 
-  DEBUG_PRINT("Topic: ");
-  DEBUG_PRINTLN(topicStr);
+//  DEBUG_PRINT("Topic: ");
+//  DEBUG_PRINT(topicStr);
+snprintf(debugMsg, sizeof(debugMsg), "Topic empfang: %s", topicStr.c_str());
+DEBUG_PRINT(debugMsg);
 
   // Verarbeite das Thema und die Nachricht
   if (topicStr == "ComfoAir/cmd/stufe") {
@@ -285,8 +294,10 @@ void callback(char* topic, byte* message, unsigned int length) {
     if (stufeGeaendert) {
       char befehl[24];
       sprintf(befehl, "00CF09%02X%02X%02X%02X%02X%02X%02X%02X00", ABL_0, ABL_1, ABL_2, ZUL_0, ZUL_1, ZUL_2, ABL_3, ZUL_3);
-      DEBUG_PRINT("Stufensetup Befehl: ");
-      DEBUG_PRINTLN(befehl);
+//      DEBUG_PRINT("Stufensetup Befehl: ");
+//      DEBUG_PRINT(befehl);
+snprintf(debugMsg, sizeof(debugMsg), "Stufensetup Befehl: %s", befehl);
+DEBUG_PRINT(debugMsg);
 
       commandQueue.enqueue(befehl);
       commandQueue.enqueue("00CD00");
@@ -297,8 +308,11 @@ void callback(char* topic, byte* message, unsigned int length) {
     int value = messageStr.toInt();
     if (value >= 60 && value <= 600) {
       COMMAND_INTERVAL = value * 1000 / (numRequests - 1);
-      DEBUG_PRINT("Neues COMMAND_INTERVAL: ");
-      DEBUG_PRINTLN(numRequests - 1);
+//      DEBUG_PRINT("Neues COMMAND_INTERVAL: ");
+//      DEBUG_PRINT(numRequests - 1);
+snprintf(debugMsg, sizeof(debugMsg), "Neues COMMAND_INTERVAL: %s", numRequests - 1);
+DEBUG_PRINT(debugMsg);
+
     }
   }
 
@@ -321,4 +335,15 @@ void callback(char* topic, byte* message, unsigned int length) {
   if (topicStr == "ComfoAir/cmd/nachlaufzeit") {
     nachlaufzeit = messageStr.toInt();
   }
+
+   if (topicStr == "ComfoAir/cmd/debug") {
+        if (messageStr == "1") {
+            debugEnabled = true;
+            DEBUG_PRINT("Debugging enabled");
+        } else if (messageStr == "0") {
+            DEBUG_PRINT("Debugging disabled");
+            debugEnabled = false;
+        }
+    }
+
 }

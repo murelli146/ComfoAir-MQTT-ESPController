@@ -6,24 +6,32 @@ void setup_wifi() {
 
   delay(10);
   // We start by connecting to a WiFi network
-  DEBUG_PRINTLN();
-  DEBUG_PRINT("Connecting to ");
-  DEBUG_PRINTLN(ssid);
+//  DEBUG_PRINT("Connecting to ");
+//  DEBUG_PRINT(ssid);
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    DEBUG_PRINT(".");
+//    DEBUG_PRINT(".");
   }
 
   randomSeed(micros());
 
-  DEBUG_PRINTLN("");
-  DEBUG_PRINTLN("WiFi connected");
-  DEBUG_PRINTLN("IP address: ");
-  DEBUG_PRINTLN(WiFi.localIP());
+//  DEBUG_PRINT("");
+//  DEBUG_PRINT("WiFi connected");
+//  DEBUG_PRINT("IP address: ");
+//  DEBUG_PRINT(WiFi.localIP());
+snprintf(debugMsg, sizeof(debugMsg), "WiFi IP address: %s", WiFi.localIP());
+DEBUG_PRINT(debugMsg);
+
+}
+
+void checkWiFi() {
+  if (WiFi.status() != WL_CONNECTED) {
+    setup_wifi();
+  }
 }
 
 void setupOTA() {
@@ -38,26 +46,26 @@ void setupOTA() {
     }
     // Hinweis: Wenn das Dateisystem aktualisiert wird, sollten alle
     // Dateisystemoperationen hier beendet werden.
-    DEBUG_PRINTLN("Starte OTA-Update " + type);
+    DEBUG_PRINT("OTA Starte OTA-Update " + type);
   });
   ArduinoOTA.onEnd([]() {
-    DEBUG_PRINTLN("\nEnde");
+    DEBUG_PRINT("OTA Ende");
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    DEBUG_PRINTF("Fortschritt: %u%%\r", (progress / (total / 100)));
+    DEBUG_PRINTF("OTA Fortschritt: %u%%\r", (progress / (total / 100)));
   });
   ArduinoOTA.onError([](ota_error_t error) {
-    DEBUG_PRINTF("Fehler[%u]: ", error);
+    DEBUG_PRINTF("OTA Fehler[%u]: ", error);
     if (error == OTA_AUTH_ERROR) {
-      DEBUG_PRINTLN("Authentifizierungsfehler");
+      DEBUG_PRINT("OTA Authentifizierungsfehler");
     } else if (error == OTA_BEGIN_ERROR) {
-      DEBUG_PRINTLN("Beginn-Fehler");
+      DEBUG_PRINT("OTA Beginn-Fehler");
     } else if (error == OTA_CONNECT_ERROR) {
-      DEBUG_PRINTLN("Verbindungsfehler");
+      DEBUG_PRINT("OTA Verbindungsfehler");
     } else if (error == OTA_RECEIVE_ERROR) {
-      DEBUG_PRINTLN("Empfangsfehler");
+      DEBUG_PRINT("OTA Empfangsfehler");
     } else if (error == OTA_END_ERROR) {
-      DEBUG_PRINTLN("Ende-Fehler");
+      DEBUG_PRINT("OTA Ende-Fehler");
     }
   });
   ArduinoOTA.begin();
@@ -69,12 +77,12 @@ void setup_mqtt() {
 
   // Verbinden mit MQTT Broker
   while (!client.connected()) {
-    DEBUG_PRINTLN("Verbindung mit MQTT Broker...");
+//    DEBUG_PRINT("Verbindung mit MQTT Broker...");
     if (client.connect("ESP8266_ComfoAir", mqttUser, mqttPassword, "ComfoAir/LWT", 0, true, "offline")) {
-      DEBUG_PRINTLN("MQTT Broker Verbunden");
+      DEBUG_PRINT("MQTT Broker Verbunden");
       client.publish("ComfoAir/LWT", "online", true);
     } else {
-      DEBUG_PRINTLN("Fehler, rc=" + String(client.state()) + " Versuche es in 5 Sekunden erneut");
+//      DEBUG_PRINT("Fehler, rc=" + String(client.state()) + " Versuche es in 5 Sekunden erneut");
       delay(5000);
     }
   }
@@ -83,19 +91,49 @@ void setup_mqtt() {
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
-    DEBUG_PRINTLN("Attempting MQTT connection...");
+//    DEBUG_PRINT("Attempting MQTT connection...");
     if (client.connect("ESP8266_ComfoAir", mqttUser, mqttPassword, "ComfoAir/LWT", 0, true, "offline")) {
-      DEBUG_PRINTLN("MQTT Broker Verbunden");
+      DEBUG_PRINT("MQTT RC Broker Verbunden");
       client.publish("ComfoAir/LWT", "online", true);
       // Hier können Sie Ihre MQTT-Abonnements hinzufügen
       client.subscribe("ComfoAir/cmd/#");
       break;  // Verbindung erfolgreich, Schleife verlassen
     } else {
-      DEBUG_PRINT("failed, rc=");
-      DEBUG_PRINT(client.state());
-      DEBUG_PRINTLN(" try again in 5 seconds");
+//      DEBUG_PRINT("failed, rc=");
+//      DEBUG_PRINT(client.state());
+//      DEBUG_PRINT(" try again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(5000);
     }
   }
+}
+
+// MQTT-Debug-Funktionen
+void mqttDebugPrint(const char* message) {
+  client.publish("ComfoAir/debug", message);
+}
+
+void mqttDebugPrint(String message) {
+  client.publish("ComfoAir/debug", message.c_str());
+}
+
+void mqttDebugPrint(int message) {
+  client.publish("ComfoAir/debug", String(message).c_str());
+}
+
+void mqttDebugPrint(unsigned long message) {
+  client.publish("ComfoAir/debug", String(message).c_str());
+}
+
+void mqttDebugPrint(IPAddress message) {
+  client.publish("ComfoAir/debug", message.toString().c_str());
+}
+
+void mqttDebugPrintf(const char* format, ...) {
+  char buffer[256];
+  va_list args;
+  va_start(args, format);
+  vsnprintf(buffer, sizeof(buffer), format, args);
+  va_end(args);
+  client.publish("ComfoAir/debug", buffer);
 }

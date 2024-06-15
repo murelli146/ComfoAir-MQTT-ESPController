@@ -17,8 +17,10 @@ void sendCommand(HardwareSerial& serial, const char* command) {
   sprintf(buffer, "07F0%s%02X070F", command, calculateChecksum(command));
   const char* hexData = buffer;
 
-  DEBUG_PRINT("Befehl gesendet: ");
-  DEBUG_PRINTLN(buffer);
+//  DEBUG_PRINT("Befehl gesendet: ");
+//  DEBUG_PRINT(buffer);
+snprintf(debugMsg, sizeof(debugMsg), "CA_ST1 Befehl gesendet: %s", buffer);
+DEBUG_PRINT(debugMsg);
 
   packHStar(hexData, byteArray, byteArraySize);
   for (int i = 0; i < byteArraySize; i++) {
@@ -47,7 +49,7 @@ void checkForResponse(HardwareSerial& serial) {
       if (strncmp(responseBuffer, "07F3", 4) == 0) {
         currentState = CHECKING_DATA;
       } else if (index >= 4) {
-        DEBUG_PRINTLN("Kein ACK empfangen");
+        DEBUG_PRINT("CA_ST2 Kein ACK empfangen");
         currentState = IDLE;
         index = 0;  // Index zurücksetzen
       }
@@ -60,7 +62,7 @@ void checkForResponse(HardwareSerial& serial) {
           currentState = RECEIVING_DATA;
         } else {
           // Nur ACK empfangen, keine weiteren Daten
-          DEBUG_PRINTLN("Nur ACK empfangen, keine weiteren Daten");
+          DEBUG_PRINT("CA_ST2 Nur ACK empfangen, keine weiteren Daten");
           currentState = IDLE;
           index = 0;  // Index zurücksetzen
           // ACK senden
@@ -70,8 +72,11 @@ void checkForResponse(HardwareSerial& serial) {
       break;
 
     case RECEIVING_DATA:
-      DEBUG_PRINT("Empfangene Daten: ");
-      DEBUG_PRINTLN(responseBuffer);
+//      DEBUG_PRINT("Empfangene Daten: ");
+//      DEBUG_PRINT(responseBuffer);
+snprintf(debugMsg, sizeof(debugMsg), "CA_ST2 Empfangene Daten: %s", responseBuffer);
+DEBUG_PRINT(debugMsg);
+
       processResponse(serial, responseBuffer);
       currentState = IDLE;
       index = 0;  // Index zurücksetzen
@@ -118,8 +123,11 @@ void processResponse(HardwareSerial& serial, char* responseBuffer) {
   while (double07Ptr != nullptr) {
     memmove(double07Ptr, double07Ptr + 2, strlen(double07Ptr) - 1);
     double07Ptr = strstr(responseBuffer, "0707");
-    DEBUG_PRINT("Nach Entfernen von doppelte 07: ");
-    DEBUG_PRINTLN(responseBuffer);
+//    DEBUG_PRINT("Nach Entfernen von doppelte 07: ");
+//    DEBUG_PRINT(responseBuffer);
+snprintf(debugMsg, sizeof(debugMsg), "CA_ST3 Empfangene Daten: %s", responseBuffer);
+DEBUG_PRINT(debugMsg);
+
   }
 
   // Checksumme überprüfen und entfernen
@@ -133,7 +141,7 @@ void processResponse(HardwareSerial& serial, char* responseBuffer) {
     sprintf(calculatedChecksumStr, "%02X", calculatedChecksum);
 
     if (strcmp(calculatedChecksumStr, checksum) != 0) {
-      DEBUG_PRINTLN("Checksummenfehler");
+      DEBUG_PRINT("CA_ST3 Checksummenfehler");
       return;
     }
   }
