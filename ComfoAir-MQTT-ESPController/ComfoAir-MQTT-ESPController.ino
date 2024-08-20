@@ -8,6 +8,9 @@
 #include "comfoair.h"
 #include "config.h"
 
+// Debug
+bool debugEnabled = 0;  // Standardmäßig Debugging deaktiviert
+
 // OTA Firmwareupdate
 const char* OTA_HOSTNAME = "ComfoAir350";
 const char* OTA_PASSWORD = "1234";
@@ -31,6 +34,8 @@ unsigned long lastCommandTime = 0;
 unsigned long lastSendTime = millis();                              // Verzögerung nach commandSend
 unsigned long requestProcessingStartTime = 0;                       //Zeitmessung Abarbeitung requests[]
 int ABL_0, ABL_1, ABL_2, ZUL_0, ZUL_1, ZUL_2, ABL_3, ZUL_3, STUFE;  // globale Variablen für Stufensetup
+bool stosslueftungAktiv = false;
+int aktuelleStufe;
 
 const char* requests[] = {
   "00DD00",  // Betriebsstunden
@@ -51,7 +56,6 @@ const int numRequests = sizeof(requests) / sizeof(requests[0]);
 
 // Speicherzuweisung Debug Nachrichten
 char debugMsg[128];
-bool debugEnabled = 1; // Standardmäßig Debugging aktiviert
 
 // Queue-Struktur
 struct CommandQueue {
@@ -92,7 +96,7 @@ CommandQueue commandQueue;
 void setup() {
   setupOTA();
   Serial.begin(9600);
-//  DEBUG_INIT(115200);
+  //  DEBUG_INIT(115200);
   setup_wifi();
   setup_mqtt();
 
@@ -102,12 +106,6 @@ void setup() {
   commandQueue.enqueue("00CD00");  // Globale Variablen setzen für Stufensetup
 }
 
-// Logik Stoßlüftung
-bool stosslueftungAktiv = false;
-int aktuelleStufe = 0;
-int nachlaufzeit = 1200;  // in Sekunden
-unsigned long stosslueftungStartzeit = 0;
-
 void loop() {
   checkWiFi();  //25.5.24
   ArduinoOTA.handle();
@@ -116,19 +114,6 @@ void loop() {
     reconnect();
   }
   client.loop();
-
-  // Logiken
-  // Stoßlüftung
-  if (stosslueftungAktiv && millis() - stosslueftungStartzeit > nachlaufzeit * 1000) {
-    stosslueftungAktiv = false;
-    commandQueue.enqueue("0099010" + String(aktuelleStufe));  // Zurück zur ursprünglichen Stufe
-    commandQueue.enqueue("00CD00");
-    snprintf(debugMsg, sizeof(debugMsg), "Stoßlüftug Nachlaufzeit abgelaufen, setze vorherige Stufe: %s", aktuelleStufe);
-    DEBUG_PRINT(debugMsg);
-
-  }
-
-
 
   //_______ComfoAir_________________________________________________
   // Überprüfen, ob seit dem letzten gesendeten Befehl 200 ms vergangen sind
@@ -140,7 +125,7 @@ void loop() {
   // Überprüfen, ob eine Antwort von der ComfoAir vorliegt
   if (currentState == WAITING_FOR_ACK || currentState == RECEIVING_DATA || currentState == CHECKING_DATA) {
     checkForResponse(Serial);
-//    DEBUG_PRINT("CA_Loop State: Prüfe ob Antwort vorliegt");
+    //    DEBUG_PRINT("CA_Loop State: Prüfe ob Antwort vorliegt");
   }
 
   // Befehle senden, wenn im IDLE-Zustand
@@ -170,7 +155,7 @@ void loop() {
         client.publish("ComfoAir/status/sendezyklus", String(processingTime / 1000).c_str());
       }
     }
-//    DEBUG_PRINT("CA_Loop State: IDLE");  
+    //    DEBUG_PRINT("CA_Loop State: IDLE");
   }
 }
 
@@ -190,11 +175,8 @@ void callback(char* topic, byte* message, unsigned int length) {
   // Erstelle einen String und reserviere ausreichend Speicher
   String daten;
   daten.reserve(100);  // Reserviere Speicher für die maximale Länge des Strings
-
-//  DEBUG_PRINT("Topic: ");
-//  DEBUG_PRINT(topicStr);
-snprintf(debugMsg, sizeof(debugMsg), "Topic empfang: %s", topicStr.c_str());
-DEBUG_PRINT(debugMsg);
+  snprintf(debugMsg, sizeof(debugMsg), "Topic empfang: %s", topicStr.c_str());
+  DEBUG_PRINT(debugMsg);
 
   // Verarbeite das Thema und die Nachricht
   if (topicStr == "ComfoAir/cmd/stufe") {
@@ -294,10 +276,8 @@ DEBUG_PRINT(debugMsg);
     if (stufeGeaendert) {
       char befehl[24];
       sprintf(befehl, "00CF09%02X%02X%02X%02X%02X%02X%02X%02X00", ABL_0, ABL_1, ABL_2, ZUL_0, ZUL_1, ZUL_2, ABL_3, ZUL_3);
-//      DEBUG_PRINT("Stufensetup Befehl: ");
-//      DEBUG_PRINT(befehl);
-snprintf(debugMsg, sizeof(debugMsg), "Stufensetup Befehl: %s", befehl);
-DEBUG_PRINT(debugMsg);
+      snprintf(debugMsg, sizeof(debugMsg), "Stufensetup Befehl: %s", befehl);
+      DEBUG_PRINT(debugMsg);
 
       commandQueue.enqueue(befehl);
       commandQueue.enqueue("00CD00");
@@ -308,11 +288,8 @@ DEBUG_PRINT(debugMsg);
     int value = messageStr.toInt();
     if (value >= 60 && value <= 600) {
       COMMAND_INTERVAL = value * 1000 / (numRequests - 1);
-//      DEBUG_PRINT("Neues COMMAND_INTERVAL: ");
-//      DEBUG_PRINT(numRequests - 1);
-snprintf(debugMsg, sizeof(debugMsg), "Neues COMMAND_INTERVAL: %s", numRequests - 1);
-DEBUG_PRINT(debugMsg);
-
+      snprintf(debugMsg, sizeof(debugMsg), "Neues COMMAND_INTERVAL: %s", numRequests - 1);
+      DEBUG_PRINT(debugMsg);
     }
   }
 
@@ -324,26 +301,24 @@ DEBUG_PRINT(debugMsg);
       stosslueftungAktiv = true;
       commandQueue.enqueue("00990104");  // Stufe 3 setzen
       commandQueue.enqueue("00CD00");
-      stosslueftungStartzeit = millis();
+      snprintf(debugMsg, sizeof(debugMsg), "Stoßlüftung aktiviert");
+      DEBUG_PRINT(debugMsg);
     } else if (messageStr == "0") {
       stosslueftungAktiv = false;
       commandQueue.enqueue("0099010" + String(aktuelleStufe));  // Zurück zur ursprünglichen Stufe
       commandQueue.enqueue("00CD00");
+      snprintf(debugMsg, sizeof(debugMsg), "Stoßlüftung deaktiviert, setze vorherige Stufe: %d", aktuelleStufe);
+      DEBUG_PRINT(debugMsg);
     }
   }
 
-  if (topicStr == "ComfoAir/cmd/nachlaufzeit") {
-    nachlaufzeit = messageStr.toInt();
-  }
-
-   if (topicStr == "ComfoAir/cmd/debug") {
-        if (messageStr == "1") {
-            debugEnabled = true;
-            DEBUG_PRINT("Debugging enabled");
-        } else if (messageStr == "0") {
-            DEBUG_PRINT("Debugging disabled");
-            debugEnabled = false;
-        }
+  if (topicStr == "ComfoAir/cmd/debug") {
+    if (messageStr == "1") {
+      debugEnabled = true;
+      DEBUG_PRINT("Debugging enabled");
+    } else if (messageStr == "0") {
+      DEBUG_PRINT("Debugging disabled");
+      debugEnabled = false;
     }
-
+  }
 }

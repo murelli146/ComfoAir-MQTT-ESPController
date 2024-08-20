@@ -9,7 +9,7 @@ Dieses Projekt bietet eine Lösung zur systemunabhängigen Verwendung zur Steuer
 ### Hauptfunktionen
 
 - **Lüftersteuerung:** Ermöglicht das Einstellen der Lüfterstufen und der Komforttemperatur.
-- **Stoßlüftungslogik:** Integrierte Logik für die Stoßlüftung mit Nachlaufzeit, aktivierbar über ein MQTT-Objekt.
+- **Stoßlüftung:** Die Stoßlüftung schaltet auf die höchste Stufe, wird die Stoßlüftung deaktiviert, schaltet die Lüftung auf die zuvor eingestellten Stufe.
 - **Statusüberwachung:** Sendet Statusobjekte wie Temperaturen, Vorheizregister, Motoren, Ventilationsstufen, Bypass-Status, Betriebsstunden, Störungsinformationen und Geräteinformationen in einem einstellbaren Sendezyklus.
 - **Stufensetup:** die Konfiguration der einzelnen Lüftereinstellung ist über MQTT möglich.
 
@@ -101,7 +101,6 @@ Der Code (`ComfoAir-MQTT-ESPController.ino`) beinhaltet die Logik für die MQTT-
 - `ComfoAir/cmd/stufensetup/ZUL_3`
 - `ComfoAir/cmd/sendezyklus`: Setzt das Intervall für den automatischen Sendevorgang (in Sekunden).
 - `ComfoAir/cmd/stosslueftung`: Aktiviert oder deaktiviert die Stoßlüftung.
-- `ComfoAir/cmd/nachlaufzeit`: Setzt die Nachlaufzeit für die Stoßlüftung (in Sekunden).
 
 ### MQTT Publish Topics
 
